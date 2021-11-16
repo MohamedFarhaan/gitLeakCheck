@@ -1,13 +1,38 @@
 #!/bin/sh
-echo "Running Gitleaks"
-gitleaks -p ./ -v --no-git
-echo "value -> " 
-echo $?
-echo ">>>>>> over <<<<<<<"
-if [ $? -eq 1 ]; then
-    echo "Error: gitleaks has detected sensitive information in your changes."
-    echo "Gitleaks test over, correct your changes try commiting again"
-    exit 1
+if [[ "$OSTYPE" == "darwin"* ]] && brew --version; 
+then
+    if gitleaks --version; 
+        then
+            echo "GitLeaks Already installed on Machine"
+        else
+            echo "Installing Gitleaks via HomeBrew"
+            brew install gitleaks
+        fi
+    echo "Running Gitleaks"
+    gitleaks -p ./ -v --no-git
+    if [ $? -eq 1 ]; 
+        then
+            echo "Error: gitleaks has detected sensitive information in your changes."
+            echo "Gitleaks test over, correct your changes try commiting again"
+            exit 1
+    fi
+else
+    if docker --version;
+        then
+            echo "Installing Gitleaks via Docker"
+            docker pull zricethezav/gitleaks:latest
+            (docker run -v ${PWD}:/my-repo zricethezav/gitleaks:latest --path="/my-repo" -v --no-git)
+            if [[ $? -eq 0 ]]; 
+                then
+                    echo "Gitleaks test - completed"
+                else 
+                    echo "Error: gitleaks has detected sensitive information in your changes."
+                    echo "Gitleaks test over, correct your changes try commiting again"
+                    exit 1
+            fi
+        else
+            echo "Install docker on your system"
+            exit 1
+    fi
 fi
-echo "Gitleaks test - completed"
 exit $status
