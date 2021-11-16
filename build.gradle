@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.box:box-java-sdk:2.48.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task installLocalGitHook(type: Copy){
+from new File(rootProject.rootDir, 'scripts/pre-commit')
+into { new File(rootProject.rootDir, '.git/hooks')}
+fileMode 0775
+}
+
+build.dependsOn installLocalGitHook

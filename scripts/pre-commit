@@ -1,0 +1,10 @@
+#!/bin/sh
+echo "Running Gitleaks"
+gitleaks -p ./ -v --no-git
+if [ $? -eq 1 ]; then
+    echo "Error: gitleaks has detected sensitive information in your changes."
+    echo "Gitleaks test over, correct your changes try commiting again"
+    exit 1
+fi
+echo "Gitleaks test - completed"
+exit $status
